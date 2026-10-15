@@ -1,0 +1,12 @@
+server:
+  port: 8083
+
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/paymentdb;AUTO_SERVER=TRUE
+    username: sa
+    password:
+
+payment:
+  online-limit: 200000      # card / UPI above this are declined
+  cod-limit: 50000          # cash on delivery above this is declined

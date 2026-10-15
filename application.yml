@@ -1,0 +1,37 @@
+# Shared by ALL services (order, inventory, payment).
+# Placeholders like ${EUREKA_URL} are resolved inside each service, so Docker can override them.
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    sampling:
+      probability: 1.0       # every request gets a traceId (shown in every log line)
+
+logging:
+  level:
+    com.example.ms: INFO

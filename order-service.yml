@@ -1,0 +1,15 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/orderdb;AUTO_SERVER=TRUE
+    username: sa
+    password:
+
+order:
+  # Eureka service names - resolved by Spring Cloud LoadBalancer
+  inventory-url: http://inventory-service
+  payment-url: http://payment-service
+  connect-timeout-ms: 2000
+  read-timeout-ms: 10000
