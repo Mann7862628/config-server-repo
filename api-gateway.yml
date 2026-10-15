@@ -1,0 +1,57 @@
+# API Gateway - the single entry point (http://localhost:8080).
+# Clients never call order/inventory/payment directly; "lb://<name>" = pick an instance from Eureka.
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 2000        # ms
+        response-timeout: 15s        # order-service itself calls inventory + payment
+      routes:
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+        - id: inventory-service
+          uri: lb://inventory-service
+          predicates:
+            - Path=/api/inventory/**
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+        # health of each service through the gateway, e.g. /order-service/actuator/health
+        - id: order-health
+          uri: lb://order-service
+          predicates:
+            - Path=/order-service/actuator/health
+          filters:
+            - StripPrefix=1
+        - id: inventory-health
+          uri: lb://inventory-service
+          predicates:
+            - Path=/inventory-service/actuator/health
+          filters:
+            - StripPrefix=1
+        - id: payment-health
+          uri: lb://payment-service
+          predicates:
+            - Path=/payment-service/actuator/health
+          filters:
+            - StripPrefix=1
+      # browser front-ends on another port may call the gateway
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns: "*"
+            allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+            allowed-headers: "*"
+            exposed-headers: X-Trace-Id
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh,gateway   # GET /actuator/gateway/routes lists the routes
